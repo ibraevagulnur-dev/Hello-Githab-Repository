@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="kk"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Асық Ату 3D — Ұлттық Ойыны</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at center, #3d2314 0%, #1f1108 100%);
+            color: #fef3c7;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        /* Қазақы ою жиектемесі */
+        .kazakh-border {
+            border: 3px solid #d97706;
+            box-shadow: 0 0 25px rgba(217, 119, 6, 0.35), inset 0 0 15px rgba(217, 119, 6, 0.2);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            transition: all 0.15s ease;
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+        .btn-gold:active {
+            transform: translateY(1px);
+        }
+        canvas {
+            touch-action: none;
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+        /* Қалқымалы жазу анимациясы */
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.8); }
+            20% { transform: translateY(-10px) scale(1.1); }
+            100% { opacity: 0; transform: translateY(-45px) scale(0.95); }
+        }
+        .floating-badge {
+            animation: floatUp 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            pointer-events: none;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.bottom-3{bottom:0.75rem}.left-1\/2{left:50%}.right-4{right:1rem}.top-4{top:1rem}.z-10{z-index:10}.z-20{z-index:20}.z-50{z-index:50}.col-span-2{grid-column:span 2 / span 2}.my-1{margin-top:0.25rem;margin-bottom:0.25rem}.mb-0\.5{margin-bottom:0.125rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-2\.5{margin-bottom:0.625rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.ml-auto{margin-left:auto}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.aspect-\[4\/5\]{aspect-ratio:4/5}.h-10{height:2.5rem}.h-16{height:4rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-full{height:100%}.max-h-\[90vh\]{max-height:90vh}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-16{width:4rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-full{width:100%}.max-w-4xl{max-width:56rem}.max-w-\[760px\]{max-width:760px}.max-w-lg{max-width:32rem}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-y-full{--tw-translate-y:-100%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%, 100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(0.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,0.2,1)}}.animate-bounce{animation:bounce 1s infinite}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-t{border-top-width:1px}.border-amber-200\/40{border-color:rgb(253 230 138 / 0.4)}.border-amber-400{--tw-border-opacity:1;border-color:rgb(251 191 36 / var(--tw-border-opacity, 1))}.border-amber-400\/40{border-color:rgb(251 191 36 / 0.4)}.border-amber-500\/20{border-color:rgb(245 158 11 / 0.2)}.border-amber-500\/30{border-color:rgb(245 158 11 / 0.3)}.border-amber-500\/40{border-color:rgb(245 158 11 / 0.4)}.border-amber-500\/50{border-color:rgb(245 158 11 / 0.5)}.border-emerald-400\/40{border-color:rgb(52 211 153 / 0.4)}.border-emerald-500\/40{border-color:rgb(16 185 129 / 0.4)}.border-purple-400\/40{border-color:rgb(192 132 252 / 0.4)}.border-sky-400\/40{border-color:rgb(56 189 248 / 0.4)}.border-transparent{border-color:transparent}.border-white{--tw-border-opacity:1;border-color:rgb(255 255 255 / var(--tw-border-opacity, 1))}.border-yellow-400{--tw-border-opacity:1;border-color:rgb(250 204 21 / var(--tw-border-opacity, 1))}.border-amber-400\/50{border-color:rgb(251 191 36 / 0.5)}.bg-\[\#29170b\]{--tw-bg-opacity:1;background-color:rgb(41 23 11 / var(--tw-bg-opacity, 1))}.bg-amber-400{--tw-bg-opacity:1;background-color:rgb(251 191 36 / var(--tw-bg-opacity, 1))}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-amber-500\/20{background-color:rgb(245 158 11 / 0.2)}.bg-amber-900{--tw-bg-opacity:1;background-color:rgb(120 53 15 / var(--tw-bg-opacity, 1))}.bg-amber-900\/40{background-color:rgb(120 53 15 / 0.4)}.bg-amber-900\/60{background-color:rgb(120 53 15 / 0.6)}.bg-amber-900\/70{background-color:rgb(120 53 15 / 0.7)}.bg-amber-900\/80{background-color:rgb(120 53 15 / 0.8)}.bg-amber-900\/90{background-color:rgb(120 53 15 / 0.9)}.bg-amber-950{--tw-bg-opacity:1;background-color:rgb(69 26 3 / var(--tw-bg-opacity, 1))}.bg-amber-950\/80{background-color:rgb(69 26 3 / 0.8)}.bg-amber-950\/85{background-color:rgb(69 26 3 / 0.85)}.bg-black\/40{background-color:rgb(0 0 0 / 0.4)}.bg-black\/50{background-color:rgb(0 0 0 / 0.5)}.bg-black\/75{background-color:rgb(0 0 0 / 0.75)}.bg-black\/80{background-color:rgb(0 0 0 / 0.8)}.bg-black\/85{background-color:rgb(0 0 0 / 0.85)}.bg-cyan-400{--tw-bg-opacity:1;background-color:rgb(34 211 238 / var(--tw-bg-opacity, 1))}.bg-emerald-700{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-amber-400{--tw-gradient-from:#fbbf24 var(--tw-gradient-from-position);--tw-gradient-to:rgb(251 191 36 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-amber-500{--tw-gradient-from:#f59e0b var(--tw-gradient-from-position);--tw-gradient-to:rgb(245 158 11 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-amber-900\/80{--tw-gradient-from:rgb(120 53 15 / 0.8) var(--tw-gradient-from-position);--tw-gradient-to:rgb(120 53 15 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-yellow-300{--tw-gradient-to:rgb(253 224 71 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #fde047 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-amber-500{--tw-gradient-to:#f59e0b var(--tw-gradient-to-position)}.to-amber-700{--tw-gradient-to:#b45309 var(--tw-gradient-to-position)}.to-yellow-900\/60{--tw-gradient-to:rgb(113 63 18 / 0.6) var(--tw-gradient-to-position)}.p-2{padding:0.5rem}.p-1{padding:0.25rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pt-1{padding-top:0.25rem}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.uppercase{text-transform:uppercase}.leading-none{line-height:1}.leading-relaxed{line-height:1.625}.tracking-wide{letter-spacing:0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-100{--tw-text-opacity:1;color:rgb(254 243 199 / var(--tw-text-opacity, 1))}.text-amber-100\/80{color:rgb(254 243 199 / 0.8)}.text-amber-100\/90{color:rgb(254 243 199 / 0.9)}.text-amber-200{--tw-text-opacity:1;color:rgb(253 230 138 / var(--tw-text-opacity, 1))}.text-amber-200\/80{color:rgb(253 230 138 / 0.8)}.text-amber-200\/90{color:rgb(253 230 138 / 0.9)}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.text-amber-400\/80{color:rgb(251 191 36 / 0.8)}.text-amber-950{--tw-text-opacity:1;color:rgb(69 26 3 / var(--tw-text-opacity, 1))}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-400\/90{color:rgb(52 211 153 / 0.9)}.text-purple-300{--tw-text-opacity:1;color:rgb(216 180 254 / var(--tw-text-opacity, 1))}.text-rose-400{--tw-text-opacity:1;color:rgb(251 113 133 / var(--tw-text-opacity, 1))}.text-rose-400\/90{color:rgb(251 113 133 / 0.9)}.text-sky-300{--tw-text-opacity:1;color:rgb(125 211 252 / var(--tw-text-opacity, 1))}.text-slate-950{--tw-text-opacity:1;color:rgb(2 6 23 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-yellow-300{--tw-text-opacity:1;color:rgb(253 224 71 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.opacity-75{opacity:0.75}.opacity-65{opacity:0.65}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.duration-200{transition-duration:200ms}.hover\:bg-amber-800:hover{--tw-bg-opacity:1;background-color:rgb(146 64 14 / var(--tw-bg-opacity, 1))}.hover\:bg-amber-800\/50:hover{background-color:rgb(146 64 14 / 0.5)}.hover\:bg-emerald-600:hover{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}@media (min-width: 640px){.sm\:aspect-\[16\/11\]{aspect-ratio:16/11}.sm\:gap-3{gap:0.75rem}.sm\:p-4{padding:1rem}.sm\:p-6{padding:1.5rem}.sm\:px-3{padding-left:0.75rem;padding-right:0.75rem}.sm\:px-4{padding-left:1rem;padding-right:1rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-xs{font-size:0.75rem;line-height:1rem}}</style></head>
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4">
+
+    <!-- Жоғарғы тақта / Header -->
+    <header class="w-full max-w-4xl flex flex-col gap-2 bg-amber-950/85 backdrop-blur-md px-3 sm:px-4 py-2.5 rounded-2xl kazakh-border mb-2">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+                <!-- Қазақы ою белгішесі -->
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-700 flex items-center justify-center shadow-lg border border-amber-200/40 shrink-0">
+                    <svg class="w-7 h-7 text-amber-950" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C9.5 2 8 4 8 6c0 1.5 1 2.8 2.2 3.4C7.5 10.2 5 12.8 5 16c0 3.3 2.7 6 6 6 1.8 0 3.4-.8 4.5-2 1.1 1.2 2.7 2 4.5 2 1.1 0 2-.9 2-2s-.9-2-2-2c-1.1 0-2-.9-2-2 0-2.5 1.8-4.5 4-5-2.2-.5-4-2.5-4-5 0-2-1.5-4-4-4-1.5 0-2.8.8-3.5 2-.7-1.2-2-2-3.5-2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-xl font-black tracking-wider text-amber-300 uppercase leading-none">Асық Ату 3D</h1>
+                    <span class="text-xs text-amber-200/80 font-medium" id="levelNameDisplay">1-деңгей: Түзу көн</span>
+                </div>
+            </div>
+
+            <!-- Ойын режимін таңдау (1 Ойыншы / 2 Ойыншы) -->
+            <div class="flex items-center bg-black/50 p-1 rounded-xl border border-amber-500/40">
+                <button id="mode1PBtn" onclick="setGameMode('1P')" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold bg-amber-500 text-amber-950 transition">
+                    👤 1 Ойыншы
+                </button>
+                <button id="mode2PBtn" onclick="setGameMode('2P')" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold text-amber-200 hover:bg-amber-800/50 transition">
+                    ⚔️ 2 Ойыншы
+                </button>
+            </div>
+
+            <!-- Батырмалар -->
+            <div class="flex items-center gap-1.5">
+                <button id="camViewBtn" onclick="cycleCameraView()" class="px-2.5 py-2 rounded-xl bg-amber-900/70 hover:bg-amber-800 border border-amber-500/40 text-xs font-bold text-amber-200 transition" title="Камера бұрышын өзгерту">
+                    🎥 Ракурс: Ойын
+                </button>
+                <button id="soundBtn" onclick="toggleSound()" class="p-2 rounded-xl bg-amber-900/70 hover:bg-amber-800 border border-amber-500/40 text-amber-200 transition text-sm" title="Дыбыс">
+                    🔊
+                </button>
+                <button onclick="toggleRulesModal(true)" class="px-2.5 py-2 rounded-xl bg-amber-900/70 hover:bg-amber-800 border border-amber-500/40 text-xs font-bold text-amber-200 transition">
+                    📜 Ереже
+                </button>
+                <button onclick="togglePublishModal(true)" class="px-2.5 py-2 rounded-xl btn-gold text-xs font-black text-amber-950 transition">
+                    🚀 Жариялау
+                </button>
+            </div>
+        </div>
+
+        <!-- 1 Ойыншы Статистикасы -->
+        <div id="stats1P" class="grid grid-cols-3 gap-2 text-xs sm:text-sm font-bold pt-1 border-t border-amber-500/20">
+            <div class="bg-black/40 px-3 py-1.5 rounded-xl border border-amber-500/30 flex items-center justify-between">
+                <span class="text-[10px] sm:text-xs text-amber-400/80 uppercase">Ұпай:</span>
+                <span id="scoreVal" class="text-sm sm:text-lg text-amber-300 font-black">0</span>
+            </div>
+            <div class="bg-black/40 px-3 py-1.5 rounded-xl border border-amber-500/30 flex items-center justify-between">
+                <span class="text-[10px] sm:text-xs text-emerald-400/90 uppercase">Көген:</span>
+                <span id="knockedVal" class="text-sm sm:text-lg text-emerald-400 font-black">0 / 5</span>
+            </div>
+            <div class="bg-black/40 px-3 py-1.5 rounded-xl border border-amber-500/30 flex items-center justify-between">
+                <span class="text-[10px] sm:text-xs text-rose-400/90 uppercase">Мүмкіндік:</span>
+                <span id="shotsVal" class="text-sm sm:text-lg text-rose-400 font-black">5</span>
+            </div>
+        </div>
+
+        <!-- 2 Ойыншы Статистикасы (Кезекпен ойнау) -->
+        <div id="stats2P" class="hidden grid grid-cols-3 gap-2 text-xs font-bold pt-1 border-t border-amber-500/20 items-center">
+            <!-- Батыр 1 -->
+            <div id="p1Card" class="bg-amber-900/70 px-3 py-1.5 rounded-xl border-2 border-amber-400 flex flex-col transition-all shadow-lg">
+                <div class="flex items-center justify-between">
+                    <span class="text-amber-300 font-black flex items-center gap-1">🔴 БАТЫР 1</span>
+                    <span id="p1TurnBadge" class="text-[10px] bg-amber-400 text-amber-950 px-1.5 py-0.5 rounded font-black uppercase">Кезегі</span>
+                </div>
+                <div class="flex justify-between text-[11px] text-amber-100 mt-1">
+                    <span>Ұпай: <strong id="p1Score" class="text-amber-300">0</strong></span>
+                    <span>Асық: <strong id="p1Asyks" class="text-emerald-400">0</strong></span>
+                </div>
+            </div>
+
+            <!-- Орталық Көген есебі -->
+            <div class="bg-black/40 px-2 py-1.5 rounded-xl border border-amber-500/30 flex flex-col items-center justify-center text-center">
+                <span class="text-[10px] text-amber-400/80 uppercase">Шеңберде қалды</span>
+                <span id="remaining2PVal" class="text-base sm:text-lg text-emerald-400 font-black">5 асық</span>
+            </div>
+
+            <!-- Батыр 2 -->
+            <div id="p2Card" class="bg-black/40 px-3 py-1.5 rounded-xl border-2 border-transparent opacity-65 flex flex-col transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-cyan-300 font-black flex items-center gap-1">🔵 БАТЫР 2</span>
+                    <span id="p2TurnBadge" class="hidden text-[10px] bg-cyan-400 text-slate-950 px-1.5 py-0.5 rounded font-black uppercase">Кезегі</span>
+                </div>
+                <div class="flex justify-between text-[11px] text-amber-100 mt-1">
+                    <span>Ұпай: <strong id="p2Score" class="text-cyan-300">0</strong></span>
+                    <span>Асық: <strong id="p2Asyks" class="text-emerald-400">0</strong></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Ойын алаңы / Main Canvas Container -->
+    <main class="relative w-full max-w-4xl flex-1 flex flex-col items-center justify-center my-1">
+        <div id="canvasWrapper" class="relative w-full max-w-[760px] aspect-[4/5] sm:aspect-[16/11] rounded-3xl overflow-hidden kazakh-border bg-[#29170b] shadow-2xl">
+            <canvas id="gameCanvas" class="w-full h-full block" width="943" height="647" style="width: 755px; height: 518px;"></canvas>
+
+            <!-- 3D Асық күйлерінің белгілері (HTML Overlay) -->
+            <div id="labelsContainer" class="absolute inset-0 pointer-events-none overflow-hidden"><div class="absolute font-black text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-black/75 border border-amber-400/50 whitespace-nowrap -translate-x-1/2 -translate-y-full transition-opacity duration-200 pointer-events-none" style="opacity: 1; top: 82.6192%; color: rgb(251, 191, 36); border-color: rgb(251, 191, 36); left: 50%;">АЛШЫ</div><div class="absolute font-black text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-black/75 border border-amber-400/50 whitespace-nowrap -translate-x-1/2 -translate-y-full transition-opacity duration-200 pointer-events-none" style="opacity: 0;"></div><div class="absolute font-black text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-black/75 border border-amber-400/50 whitespace-nowrap -translate-x-1/2 -translate-y-full transition-opacity duration-200 pointer-events-none" style="opacity: 0;"></div><div class="absolute font-black text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-black/75 border border-amber-400/50 whitespace-nowrap -translate-x-1/2 -translate-y-full transition-opacity duration-200 pointer-events-none" style="opacity: 0;"></div><div class="absolute font-black text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-black/75 border border-amber-400/50 whitespace-nowrap -translate-x-1/2 -translate-y-full transition-opacity duration-200 pointer-events-none" style="opacity: 0;"></div><div class="absolute font-black text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-black/75 border border-amber-400/50 whitespace-nowrap -translate-x-1/2 -translate-y-full transition-opacity duration-200 pointer-events-none" style="opacity: 0;"></div></div>
+
+            <!-- Омпы немесе Кезек хабарламасы (Жоғарғы баннер) -->
+            <div id="specialAlertBanner" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 text-amber-950 font-black text-xs sm:text-sm px-5 py-2 rounded-full shadow-2xl border-2 border-white uppercase tracking-wider whitespace-nowrap animate-bounce">
+                👑 ОМПЫ ТҮСТІ! +150 ҰПАЙ &amp; ҚОСЫМША АТУ!
+            </div>
+
+            <!-- Қалқымалы хабарламалар контейнері -->
+            <div id="floatingContainer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+
+            <!-- Ату кезіндегі нұсқаулық -->
+            <div id="hintBanner" class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/75 backdrop-blur-sm text-amber-200 text-[11px] sm:text-xs px-4 py-1.5 rounded-full border border-amber-400/40 pointer-events-none whitespace-nowrap transition-opacity duration-300" style="opacity: 1;">
+                🎯 Сақаны басып артқа тартып атыңыз | 🔄 Бос жерді сипап 3D камераны бұрыңыз
+            </div>
+
+            <!-- Деңгей аяқталды / Жеңіс немесе Жеңіліс терезесі -->
+            <div id="roundOverlay" class="hidden absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+                <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-4xl mb-3" id="overlayIcon">
+                    🏆
+                </div>
+                <h2 id="overlayTitle" class="text-2xl sm:text-3xl font-black text-amber-300 mb-2 uppercase">Жарайсың!</h2>
+                <p id="overlayDesc" class="text-sm sm:text-base text-amber-100/90 max-w-md mb-6">
+                    Сіз көгендегі барлық асықты шеңберден атып шығардыңыз!
+                </p>
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <button onclick="restartLevel()" class="px-5 py-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 border border-amber-500/50 text-amber-200 font-bold text-sm transition">
+                        🔄 Қайта ойнау
+                    </button>
+                    <button id="nextLevelBtn" onclick="nextLevel()" class="px-6 py-2.5 rounded-xl btn-gold text-amber-950 font-black text-sm uppercase tracking-wide">
+                        Келесі деңгей ➡️
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Төменгі басқару тақтасы / Controls & Spin -->
+    <footer class="w-full max-w-4xl bg-amber-950/80 backdrop-blur-md px-4 py-3 rounded-2xl kazakh-border mt-2 flex flex-wrap items-center justify-between gap-3">
+        <!-- Иіру / Spin таңдау -->
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <span class="text-xs sm:text-sm font-bold text-amber-300">🌪️ Сақа иірімі (Алшы түсіру):</span>
+            <div class="flex items-center bg-black/40 p-1 rounded-xl border border-amber-500/30">
+                <button onclick="setSpin(-1)" id="spinLeft" class="px-2.5 py-1 rounded-lg text-xs font-bold text-amber-200 hover:bg-amber-800/50 transition">↺ Солға</button>
+                <button onclick="setSpin(0)" id="spinCenter" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500 text-amber-950 transition">Түзу</button>
+                <button onclick="setSpin(1)" id="spinRight" class="px-2.5 py-1 rounded-lg text-xs font-bold text-amber-200 hover:bg-amber-800/50 transition">Оңға ↻</button>
+            </div>
+        </div>
+
+        <!-- Деңгей таңдау және Қайта бастау -->
+        <div class="flex items-center gap-2 ml-auto">
+            <select id="levelSelect" onchange="changeLevelSelect(this.value)" class="bg-amber-900/90 border border-amber-500/50 text-amber-200 text-xs sm:text-sm font-bold rounded-xl px-3 py-2 outline-none">
+                <option value="0">1-деңгей: Түзу көн (5 асық)</option>
+                <option value="1">2-деңгей: Орда көген (6 асық)</option>
+                <option value="2">3-деңгей: Хан асығы (7 асық)</option>
+            </select>
+            <button onclick="restartLevel()" class="px-4 py-2 rounded-xl btn-gold text-amber-950 font-black text-xs sm:text-sm uppercase">
+                🔄 Жаңарту
+            </button>
+        </div>
+    </footer>
+
+    <!-- Ережелер терезесі / Rules Modal -->
+    <div id="rulesModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-amber-950 kazakh-border rounded-3xl max-w-lg w-full p-5 sm:p-6 text-amber-100 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleRulesModal(false)" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-amber-900/80 hover:bg-amber-800 flex items-center justify-center text-amber-300 font-bold">✕</button>
+            <h3 class="text-lg sm:text-2xl font-black text-amber-300 mb-2 flex items-center gap-2">
+                <span>📜</span> «Асық Ату» ережесі мен күйлері
+            </h3>
+            <p class="text-xs sm:text-sm text-amber-200/90 mb-3 leading-relaxed">
+                <strong>Мақсат:</strong> Сақаны артқа тартып жіберу арқылы ортадағы <strong>Көгенде</strong> тізілген асықтарды шеңберден сыртқа атып шығару (+100 ұпай).
+            </p>
+            <div class="grid grid-cols-2 gap-2 mb-3 text-xs">
+                <div class="col-span-2 bg-gradient-to-r from-amber-900/80 to-yellow-900/60 p-3 rounded-xl border-2 border-yellow-400">
+                    <div class="font-black text-yellow-300 text-sm mb-0.5">👑 ОМПЫ (+150 ұпай &amp; Кезек сақталады!)</div>
+                    <p class="text-amber-100/90">Асықтың тұмсығымен немесе тік қырымен шаншылып тұрып қалуы! Сирек кездесетін ең жоғарғы дәреже. Қатты соққы мен иірім Омпы түсу мүмкіндігін арттырады.</p>
+                </div>
+                <div class="bg-black/40 p-2.5 rounded-xl border border-amber-400/40">
+                    <div class="font-black text-amber-400 text-sm mb-0.5">🌟 АЛШЫ (+50 ұпай)</div>
+                    <p class="text-amber-200/80">Асықтың тік тұрысы. Сақа Алшы түссе, <strong>+1 қосымша ату / кезек</strong> беріледі!</p>
+                </div>
+                <div class="bg-black/40 p-2.5 rounded-xl border border-emerald-400/40">
+                    <div class="font-black text-emerald-400 text-sm mb-0.5">⚡ ТӘЙКЕ (+30 ұпай)</div>
+                    <p class="text-amber-200/80">Алшыға қарама-қарсы тік тұрысы. Жақсы ұпай береді.</p>
+                </div>
+                <div class="bg-black/40 p-2.5 rounded-xl border border-sky-400/40">
+                    <div class="font-black text-sky-300 text-sm mb-0.5">🔹 БҮК (+10 ұпай)</div>
+                    <p class="text-amber-200/80">Асықтың дөңес, бүкір жағымен етпетінен жатуы.</p>
+                </div>
+                <div class="bg-black/40 p-2.5 rounded-xl border border-purple-400/40">
+                    <div class="font-black text-purple-300 text-sm mb-0.5">🔸 ШІК (+10 ұпай)</div>
+                    <p class="text-amber-200/80">Асықтың шұңқырлы, ойыс жағымен шалқасынан жатуы.</p>
+                </div>
+            </div>
+            <div class="bg-amber-900/40 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-200 mb-4">
+                ⚔️ <strong>2 Ойыншы режимі:</strong> Батыр 1 мен Батыр 2 кезекпен атады. Егер ойыншы асықты шеңберден шығарса немесе Сақасы <strong>АЛШЫ / ОМПЫ</strong> түссе — кезегін жоғалтпай тағы атады!
+            </div>
+            <button onclick="toggleRulesModal(false)" class="w-full py-2.5 rounded-xl btn-gold text-amber-950 font-black uppercase text-sm">
+                Ойынға оралу
+            </button>
+        </div>
+    </div>
+
+    <!-- Жариялау және Бөлісу терезесі / Publish & Share Modal -->
+    <div id="publishModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-amber-950 kazakh-border rounded-3xl max-w-lg w-full p-5 sm:p-6 text-amber-100 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="togglePublishModal(false)" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-amber-900/80 hover:bg-amber-800 flex items-center justify-center text-amber-300 font-bold">✕</button>
+            <h3 class="text-lg sm:text-xl font-black text-amber-300 mb-2 flex items-center gap-2">
+                <span>🚀</span> Кез келген адам ойнайтындай жариялау
+            </h3>
+            <p class="text-xs sm:text-sm text-amber-200/90 mb-4 leading-relaxed">
+                Ойынды интернетке тегін шығарып, WhatsApp не Telegram арқылы сілтемесін жіберу үшін төмендегі <strong>2 қадамды</strong> орындаңыз:
+            </p>
+
+            <!-- 1-қадам: Файлды жүктеп алу -->
+            <div class="bg-black/40 border border-amber-500/40 rounded-2xl p-3.5 mb-3">
+                <div class="text-xs font-black text-amber-400 uppercase mb-1">1-қадам: Ойын файлын жүктеп алыңыз</div>
+                <p class="text-xs text-amber-100/80 mb-2.5">Ойынның барлық 3D графикасы мен дыбысы бір ғана <code class="bg-amber-900/80 px-1.5 py-0.5 rounded text-amber-300">index.html</code> файлына жинақталған:</p>
+                <button onclick="downloadGameHTML()" class="w-full py-2.5 rounded-xl btn-gold text-amber-950 font-black text-xs sm:text-sm uppercase flex items-center justify-center gap-2">
+                    📥 Ойынды жүктеп алу (index.html)
+                </button>
+            </div>
+
+            <!-- 2-қадам: Хостингке салу -->
+            <div class="bg-black/40 border border-emerald-500/40 rounded-2xl p-3.5 mb-3 space-y-2 text-xs">
+                <div class="font-black text-emerald-400 uppercase">2-қадам: Тегін сілтеме алу (1 минутта)</div>
+                <p class="text-amber-100/90">
+                    <strong>А нұсқасы (Tiiny.host / Netlify Drop):</strong> Жүктелген <code class="text-amber-300">index.html</code> файлын <span class="underline text-amber-300">tiiny.host</span> немесе <span class="underline text-amber-300">app.netlify.com/drop</span> сайтына сүйреп апарып тастасаңыз, сізге бірден дайын сілтеме береді!
+                </p>
+                <p class="text-amber-100/90">
+                    <strong>Ә нұсқасы (Telegram Mini App):</strong> Алған сілтемені Telegram-дағы <code class="text-amber-300">@BotFather</code> ботына қосып, Telegram ішінде ашылатын ойын ете аласыз.
+                </p>
+            </div>
+
+            <!-- Достармен бөлісу батырмасы -->
+            <div class="flex gap-2">
+                <button onclick="shareGameResult()" class="flex-1 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm transition">
+                    📲 Ұпаймен бөлісу (WhatsApp/TG)
+                </button>
+                <button onclick="togglePublishModal(false)" class="px-4 py-2.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-amber-200 font-bold text-xs sm:text-sm transition">
+                    Жабу
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ДЫБЫС СИНТЕЗАТОРЫ (Web Audio API)
+        // ==========================================
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundBtn').textContent = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // Сүйек/асық соғылғанда шығатын табиғи «шақ» еткен дыбыс
+        function playBoneClack(intensity = 1) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                // Қысқа ағаш/сүйек резонансы
+                osc.type = 'triangle';
+                const baseFreq = 650 + Math.random() * 250;
+                osc.frequency.setValueAtTime(baseFreq, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.065);
+
+                const vol = Math.min(0.8, Math.max(0.1, intensity * 0.6));
+                gain.gain.setValueAtTime(vol, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.075);
+            } catch (e) {}
+        }
+
+        // Ату дыбысы (ысқырық/серпін)
+        function playShootSound() {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.17);
+            } catch (e) {}
+        }
+
+        // Алшы, Омпы немесе Шеңберден шыққандағы жеңіс аккорды (Домбыра қоңыр үні)
+        function playFanfare(type = 'out') {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                let notes = [440, 554.37, 659.25];
+                if (type === 'alshy') notes = [523.25, 659.25, 783.99, 1046.5];
+                if (type === 'ompy') notes = [440, 587.33, 659.25, 880, 1174.66];
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+                    gain.gain.setValueAtTime(0.22, now + idx * 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.28);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + idx * 0.06);
+                    osc.stop(now + idx * 0.06 + 0.29);
+                });
+            } catch (e) {}
+        }
+
+        // ==========================================
+        // ТОЛЫҚ 3D ОЙЫН КОНФИГУРАЦИЯСЫ (Three.js)
+        // ==========================================
+        const canvas = document.getElementById('gameCanvas');
+        const wrapper = document.getElementById('canvasWrapper');
+        const floatingContainer = document.getElementById('floatingContainer');
+        const labelsContainer = document.getElementById('labelsContainer');
+
+        // Ішкі логикалық координаттар (600x600 -> 3D кеңістігімен байланысқан)
+        const LOGICAL_SIZE = 600;
+        const CENTER_X = 300;
+        const CENTER_Y = 240;
+        const CIRCLE_RADIUS = 175;
+        const SAKA_START_X = 300;
+        const SAKA_START_Y = 490;
+        const SCALE_3D = 0.1; // 600px -> 60 3D бірлік
+
+        function to3DX(lx) { return (lx - CENTER_X) * SCALE_3D; }
+        function to3DZ(ly) { return (ly - CENTER_Y) * SCALE_3D; }
+
+        let gameMode = '1P';
+        let currentPlayer = 1;
+        let players = {
+            1: { score: 0, asyks: 0, name: 'Батыр 1', color: 0xdc2626, leadColor: 0xfbbf24 },
+            2: { score: 0, asyks: 0, name: 'Батыр 2', color: 0x0284c7, leadColor: 0x38bdf8 }
+        };
+        let knockedOutThisTurn = 0;
+        let targetOmpyThisTurn = false;
+
+        let currentLevelIdx = 0;
+        let score = 0;
+        let shotsLeft = 5;
+        let spinBias = 0;
+        let isAiming = false;
+        let isOrbiting = false;
+        let orbitStart = { x: 0, y: 0 };
+        let dragCurrent = { x: SAKA_START_X, y: SAKA_START_Y };
+        let roundActive = false;
+
+        // Камера режимдері: 0 - Ойын ракурсы, 1 - Сақаны 3D жақыннан көру, 2 - Жоғарыдан шолу
+        let camMode = 0;
+        let camAzimuth = 0;
+        let camElevation = 0.68; // радиан
+        let camDistance = 48;
+        let camTarget = new THREE.Vector3(0, 0, 7);
+
+        const LEVELS = [
+            {
+                name: "1-деңгей: Түзу көн",
+                shots: 5,
+                targets: [
+                    { x: 220, y: 240, color: 0xf5deb3, isKhan: false },
+                    { x: 260, y: 240, color: 0xfca5a5, isKhan: false },
+                    { x: 300, y: 240, color: 0xfcd34d, isKhan: false },
+                    { x: 340, y: 240, color: 0x93c5fd, isKhan: false },
+                    { x: 380, y: 240, color: 0xf5deb3, isKhan: false }
+                ]
+            },
+            {
+                name: "2-деңгей: Орда көген",
+                shots: 5,
+                targets: [
+                    { x: 300, y: 195, color: 0xfcd34d, isKhan: false },
+                    { x: 268, y: 235, color: 0x86efac, isKhan: false },
+                    { x: 332, y: 235, color: 0xfca5a5, isKhan: false },
+                    { x: 236, y: 275, color: 0xf5deb3, isKhan: false },
+                    { x: 300, y: 275, color: 0xc4b5fd, isKhan: false },
+                    { x: 364, y: 275, color: 0xf5deb3, isKhan: false }
+                ]
+            },
+            {
+                name: "3-деңгей: Хан асығы",
+                shots: 6,
+                targets: [
+                    { x: 300, y: 240, color: 0xfbbf24, isKhan: true },
+                    { x: 252, y: 210, color: 0xf5deb3, isKhan: false },
+                    { x: 348, y: 210, color: 0xf5deb3, isKhan: false },
+                    { x: 252, y: 270, color: 0xfca5a5, isKhan: false },
+                    { x: 348, y: 270, color: 0xfca5a5, isKhan: false },
+                    { x: 300, y: 185, color: 0x93c5fd, isKhan: false },
+                    { x: 300, y: 295, color: 0x86efac, isKhan: false }
+                ]
+            }
+        ];
+
+        // Асықтың 5 күйі және олардың 3D кеңістіктегі нақты бұрыштары (rotX, rotZ)
+        const STATES = {
+            OMPY:  { name: 'ОМПЫ 👑', bonus: 150, color: '#facc15', rotX: Math.PI / 2, rotZ: 0,           yOffset: 2.35 },
+            ALSHY: { name: 'АЛШЫ',    bonus: 50,  color: '#fbbf24', rotX: 0,           rotZ: 0,           yOffset: 1.45 },
+            TAIKE: { name: 'ТӘЙКЕ',   bonus: 30,  color: '#34d399', rotX: Math.PI,     rotZ: 0,           yOffset: 1.45 },
+            BUK:   { name: 'БҮК',     bonus: 10,  color: '#60a5fa', rotX: 0,           rotZ: Math.PI / 2, yOffset: 1.15 },
+            SHIK:  { name: 'ШІК',     bonus: 10,  color: '#c084fc', rotX: 0,           rotZ: -Math.PI / 2,yOffset: 1.15 }
+        };
+
+        // ==========================================
+        // THREE.JS САХНАСЫН ҚҰРУ
+        // ==========================================
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x26150a);
+        scene.fog = new THREE.FogExp2(0x26150a, 0.0085);
+
+        const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 300);
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        // Жарықтандыру
+        const ambientLight = new THREE.AmbientLight(0xffedd5, 0.65);
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.15);
+        sunLight.position.set(18, 42, 26);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        sunLight.shadow.camera.near = 5;
+        sunLight.shadow.camera.far = 110;
+        const d = 36;
+        sunLight.shadow.camera.left = -d;
+        sunLight.shadow.camera.right = d;
+        sunLight.shadow.camera.top = d;
+        sunLight.shadow.camera.bottom = -d;
+        sunLight.shadow.bias = -0.0005;
+        scene.add(sunLight);
+
+        const rimLight = new THREE.DirectionalLight(0xf59e0b, 0.45);
+        rimLight.position.set(-25, 18, -20);
+        scene.add(rimLight);
+
+        // ==========================================
+        // 3D АЛАҢ (КӨН ШЕҢБЕРІ, ҚҰМ, АҒАШ ЖИЕК)
+        // ==========================================
+        const arenaGroup = new THREE.Group();
+        scene.add(arenaGroup);
+
+        function build3DArena() {
+            // Негізгі құмды алаң
+            const groundGeo = new THREE.CylinderGeometry(36, 38, 1.6, 64);
+            const groundMat = new THREE.MeshStandardMaterial({
+                color: 0xd4a66a,
+                roughness: 0.92,
+                metalness: 0.05
+            });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.position.y = -0.8;
+            ground.receiveShadow = true;
+            arenaGroup.add(ground);
+
+            // Сыртқы оюлы ағаш ернеуі
+            const rimGeo = new THREE.TorusGeometry(36.2, 1.2, 16, 64);
+            const rimMat = new THREE.MeshStandardMaterial({
+                color: 0x5c2d0c,
+                roughness: 0.6,
+                metalness: 0.2
+            });
+            const rim = new THREE.Mesh(rimGeo, rimMat);
+            rim.rotation.x = Math.PI / 2;
+            rim.position.y = 0.2;
+            rim.receiveShadow = true;
+            arenaGroup.add(rim);
+
+            // КӨН ШЕҢБЕРІ (Ортадағы шеңбер сызығы)
+            const kogenRadius3D = CIRCLE_RADIUS * SCALE_3D;
+            const ringGeo = new THREE.RingGeometry(kogenRadius3D - 0.35, kogenRadius3D + 0.35, 64);
+            const ringMat = new THREE.MeshStandardMaterial({
+                color: 0x6b2708,
+                roughness: 0.8,
+                side: THREE.DoubleSide
+            });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.rotation.x = -Math.PI / 2;
+            ringMesh.position.y = 0.03;
+            ringMesh.receiveShadow = true;
+            arenaGroup.add(ringMesh);
+
+            // Шеңбер ішіндегі күңгірттеу аймақ
+            const innerDiskGeo = new THREE.CircleGeometry(kogenRadius3D - 0.35, 64);
+            const innerDiskMat = new THREE.MeshStandardMaterial({
+                color: 0xc59355,
+                roughness: 0.95
+            });
+            const innerDisk = new THREE.Mesh(innerDiskGeo, innerDiskMat);
+            innerDisk.rotation.x = -Math.PI / 2;
+            innerDisk.position.y = 0.015;
+            innerDisk.receiveShadow = true;
+            arenaGroup.add(innerDisk);
+
+            // Көннің орталық сызығы (тізілетін сызық)
+            const lineGeo = new THREE.PlaneGeometry(kogenRadius3D * 1.65, 0.35);
+            const lineMesh = new THREE.Mesh(lineGeo, ringMat);
+            lineMesh.rotation.x = -Math.PI / 2;
+            lineMesh.position.y = 0.04;
+            arenaGroup.add(lineMesh);
+
+            // Сақа ататын сызық (Төменгі жақта)
+            const sakaZ = to3DZ(SAKA_START_Y);
+            const shootLineGeo = new THREE.PlaneGeometry(22, 0.35);
+            const shootLineMat = new THREE.MeshStandardMaterial({ color: 0x991b1b });
+            const shootLine = new THREE.Mesh(shootLineGeo, shootLineMat);
+            shootLine.rotation.x = -Math.PI / 2;
+            shootLine.position.set(0, 0.03, sakaZ);
+            arenaGroup.add(shootLine);
+
+            // Сақа тұратын дөңгелек белгі
+            const sakaSpotGeo = new THREE.RingGeometry(2.1, 2.45, 32);
+            const sakaSpotMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, side: THREE.DoubleSide });
+            const sakaSpot = new THREE.Mesh(sakaSpotGeo, sakaSpotMat);
+            sakaSpot.rotation.x = -Math.PI / 2;
+            sakaSpot.position.set(0, 0.04, sakaZ);
+            arenaGroup.add(sakaSpot);
+        }
+        build3DArena();
+
+        // 3D Көздеу нүктелері (Trajectory Dots) және Тарту сызығы
+        const aimGroup = new THREE.Group();
+        scene.add(aimGroup);
+        const trajectoryDots = [];
+        for (let i = 0; i < 12; i++) {
+            const dotGeo = new THREE.SphereGeometry(0.42 - i * 0.022, 12, 12);
+            const dotMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+            const dot = new THREE.Mesh(dotGeo, dotMat);
+            dot.visible = false;
+            aimGroup.add(dot);
+            trajectoryDots.push(dot);
+        }
+
+        // ==========================================
+        // АНАТОМИЯЛЫҚ 3D АСЫҚ МОДЕЛІН ЖАСАУ (Тексерілген толық сұлба)
+        // ==========================================
+        /**
+         * Нағыз асықтың (Astragalus / Talus сүйегінің) 3D скульптуралық геометриясын құрастыру:
+         * - Ұзынша сүйек корпусы, ортасындағы белі (мойны)
+         * - 4 бұрышындағы 4 иір мүйізі (trochlear ridges / condyles)
+         * - Үстіңгі АЛШЫ ойығы мен астыңғы ТӘЙКЕ бедері
+         * - Оң/сол жақ БҮК (дөңес) және ШІК (ойыс шұңқыр) бүйірлері
+         * - Сақада: ортасына құйылған металл қорғасын (Lead inlay)
+         */
+        function createDetailedAsykMesh(colorHex, isSaka = false, isKhan = false, leadColorHex = 0xfbbf24) {
+            const root = new THREE.Group();
+
+            // Сүйек материалы
+            const boneMat = new THREE.MeshStandardMaterial({
+                color: colorHex,
+                roughness: isSaka ? 0.38 : 0.55,
+                metalness: isKhan ? 0.35 : 0.08
+            });
+
+            // Сүйектің қара-қоңыр ойықтарына арналған күңгірт материал
+            const grooveMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(colorHex).multiplyScalar(0.58),
+                roughness: 0.75,
+                metalness: 0.05
+            });
+
+            // 1. Орталық негізгі сүйек корпусы (anatomical sculpted body)
+            const bodyGeo = new THREE.BoxGeometry(2.1, 2.35, 3.3, 12, 12, 16);
+            const pos = bodyGeo.attributes.position;
+            const v = new THREE.Vector3();
+
+            for (let i = 0; i < pos.count; i++) {
+                v.fromBufferAttribute(pos, i);
+                const nx = v.x / 1.05; // -1..1
+                const ny = v.y / 1.175; // -1..1
+                const nz = v.z / 1.65; // -1..1
+
+                // Сүйектің бұрыштарын жұмырлау (organic bone rounding)
+                const r2 = nx * nx + ny * ny + nz * nz;
+                if (r2 > 1.0) {
+                    const factor = 1 / Math.sqrt(r2);
+                    v.x *= (0.62 + 0.38 * factor);
+                    v.y *= (0.62 + 0.38 * factor);
+                    v.z *= (0.72 + 0.28 * factor);
+                }
+
+                // Ортаңғы белін қысу (Z=0 маңындағы асық белі) және екі шетіндегі мүйіздерін шығару
+                const zEnds = Math.pow(Math.abs(nz), 1.5);
+                v.y *= (0.78 + 0.34 * zEnds);
+                v.x *= (0.84 + 0.22 * zEnds);
+
+                // АЛШЫ (ny > 0) мен ТӘЙКЕ (ny < 0) үстіңгі/астыңғы ершік тәрізді ойықтары
+                const xCenter = Math.max(0, 1 - nx * nx * 1.3);
+                if (ny > 0.25) {
+                    v.y -= 0.36 * xCenter * (1 - Math.abs(nz) * 0.4);
+                } else if (ny < -0.25) {
+                    v.y += 0.28 * xCenter * (1 - Math.abs(nz) * 0.5);
+                }
+
+                // ШІК жағы (nx < -0.35): терең табиғи шұңқыр (concave depression)
+                if (nx < -0.35) {
+                    const shikDepth = Math.max(0, 1 - (ny * ny * 1.3 + nz * nz * 1.1));
+                    v.x += 0.48 * shikDepth;
+                }
+
+                // БҮК жағы (nx > 0.35): дөңес бүкір арқасы (convex hump)
+                if (nx > 0.35) {
+                    const bukBump = Math.max(0, 1 - (ny * ny * 1.1 + nz * nz * 1.1));
+                    v.x += 0.26 * bukBump;
+                }
+
+                pos.setXYZ(i, v.x, v.y, v.z);
+            }
+            bodyGeo.computeVertexNormals();
+
+            const bodyMesh = new THREE.Mesh(bodyGeo, boneMat);
+            bodyMesh.castShadow = true;
+            bodyMesh.receiveShadow = true;
+            root.add(bodyMesh);
+
+            // 2. Асықтың 4 бұрышындағы иір мүйізшелері (4 anatomical condyle ridges)
+            const hornGeo = new THREE.SphereGeometry(0.58, 14, 14);
+            hornGeo.scale(0.72, 1.25, 1.15);
+
+            const hornCoords = [
+                { x:  0.66, y:  0.48, z:  1.22, rx:  0.25, rz: -0.18 },
+                { x: -0.66, y:  0.45, z:  1.22, rx:  0.25, rz:  0.18 },
+                { x:  0.64, y:  0.38, z: -1.22, rx: -0.25, rz: -0.18 },
+                { x: -0.64, y:  0.35, z: -1.22, rx: -0.25, rz:  0.18 }
+            ];
+            hornCoords.forEach(hc => {
+                const horn = new THREE.Mesh(hornGeo, boneMat);
+                horn.position.set(hc.x, hc.y, hc.z);
+                horn.rotation.set(hc.rx, 0, hc.rz);
+                horn.castShadow = true;
+                horn.receiveShadow = true;
+                root.add(horn);
+            });
+
+            // 3. Төменгі Тәйке тірек буындары (bottom heels)
+            const heelGeo = new THREE.SphereGeometry(0.52, 12, 12);
+            heelGeo.scale(0.85, 0.95, 1.2);
+            [-0.58, 0.58].forEach(hx => {
+                [-1.05, 1.05].forEach(hz => {
+                    const heel = new THREE.Mesh(heelGeo, boneMat);
+                    heel.position.set(hx, -0.68, hz);
+                    heel.castShadow = true;
+                    root.add(heel);
+                });
+            });
+
+            // 4. Шік жағындағы сүйек ойығының көлеңкелі өзегі (Анық көріну үшін)
+            const shikCavityGeo = new THREE.SphereGeometry(0.55, 12, 12);
+            shikCavityGeo.scale(0.35, 0.85, 1.35);
+            const shikCavity = new THREE.Mesh(shikCavityGeo, grooveMat);
+            shikCavity.position.set(-0.68, 0, 0);
+            root.add(shikCavity);
+
+            // 5. Алшы үстіндегі бойлық сүйек жырашығы
+            const alshyGrooveGeo = new THREE.CylinderGeometry(0.22, 0.22, 2.2, 10);
+            alshyGrooveGeo.rotateX(Math.PI / 2);
+            alshyGrooveGeo.scale(1.2, 0.45, 1);
+            const alshyGroove = new THREE.Mesh(alshyGrooveGeo, grooveMat);
+            alshyGroove.position.set(0, 0.85, 0);
+            root.add(alshyGroove);
+
+            // 6. Егер САҚА немесе ХАН АСЫҒЫ болса — Қорғасын құймасы (Lead/Gold Inlay)
+            if (isSaka || isKhan) {
+                const inlayMat = new THREE.MeshStandardMaterial({
+                    color: isSaka ? leadColorHex : 0xfef08a,
+                    roughness: 0.22,
+                    metalness: 0.88
+                });
+                // Үстіңгі және бүйірлік қорғасын білік
+                const leadCoreGeo = new THREE.CylinderGeometry(0.46, 0.46, 2.15, 16);
+                const leadCore = new THREE.Mesh(leadCoreGeo, inlayMat);
+                leadCore.position.set(0, 0.05, 0);
+                root.add(leadCore);
+
+                const sideLeadGeo = new THREE.CylinderGeometry(0.42, 0.42, 1.85, 16);
+                sideLeadGeo.rotateZ(Math.PI / 2);
+                const sideLead = new THREE.Mesh(sideLeadGeo, inlayMat);
+                root.add(sideLead);
+            }
+
+            // 7. Шеңберден шыққанда немесе Омпы түскенде жанатын 3D сақина (Halo Ring)
+            const haloGeo = new THREE.RingGeometry(1.95, 2.35, 32);
+            const haloMat = new THREE.MeshBasicMaterial({
+                color: 0x34d399,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.0
+            });
+            const haloRing = new THREE.Mesh(haloGeo, haloMat);
+            haloRing.rotation.x = -Math.PI / 2;
+            haloRing.position.y = -1.25;
+
+            const container = new THREE.Group();
+            container.add(root);
+            container.add(haloRing);
+
+            const scale = isSaka ? 1.28 : (isKhan ? 1.12 : 0.96);
+            root.scale.set(scale, scale, scale);
+
+            return { container, boneRoot: root, haloRing, boneMat };
+        }
+
+        // ==========================================
+        // 3D АСЫҚ КЛАСЫ ЖӘНЕ ФИЗИКАСЫ
+        // ==========================================
+        let asyks = [];
+        let saka = null;
+        let dustParticles3D = [];
+
+        class Asyk3D {
+            constructor(x, y, isSaka = false, config = {}) {
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.isSaka = isSaka;
+                this.isKhan = config.isKhan || false;
+                this.radius = isSaka ? 22 : (this.isKhan ? 19 : 16);
+                this.mass = isSaka ? 2.4 : (this.isKhan ? 1.5 : 1.0);
+                this.angle = isSaka ? 0 : (Math.random() * Math.PI * 2);
+                this.vAngle = 0;
+
+                // 3D айналу жылдамдықтары
+                this.rotX = 0;
+                this.rotY = this.angle;
+                this.rotZ = 0;
+                this.targetRotX = 0;
+                this.targetRotZ = 0;
+                this.targetY = 1.45;
+
+                this.color = isSaka ? 0xdc2626 : (config.color || 0xf5deb3);
+                this.leadColor = isSaka ? 0xfbbf24 : 0xfef08a;
+                this.state = STATES.ALSHY;
+                this.knockedOut = false;
+                this.wasHit = false;
+                this.maxImpact = 0;
+
+                // 3D Mesh жасау
+                const built = createDetailedAsykMesh(this.color, this.isSaka, this.isKhan, this.leadColor);
+                this.mesh = built.container;
+                this.boneRoot = built.boneRoot;
+                this.haloRing = built.haloRing;
+                this.boneMat = built.boneMat;
+                scene.add(this.mesh);
+
+                // HTML Label (Омпы / Алшы жазуы)
+                this.labelEl = document.createElement('div');
+                this.labelEl.className = 'absolute font-black text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-black/75 border border-amber-400/50 whitespace-nowrap -translate-x-1/2 -translate-y-full transition-opacity duration-200 pointer-events-none';
+                this.labelEl.style.opacity = '0';
+                labelsContainer.appendChild(this.labelEl);
+
+                this.sync3DTransform();
+            }
+
+            destroy() {
+                scene.remove(this.mesh);
+                if (this.labelEl) this.labelEl.remove();
+            }
+
+            setColors(bodyHex, leadHex) {
+                this.boneMat.color.setHex(bodyHex);
+            }
+
+            update() {
+                const speed = Math.hypot(this.vx, this.vy);
+                if (speed > 0.08) {
+                    if (speed > this.maxImpact) this.maxImpact = speed;
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Құм үстіндегі үйкеліс
+                    this.vx *= 0.962;
+                    this.vy *= 0.962;
+
+                    // Иірім әсері (Магнус эффектісі)
+                    if (this.isSaka && spinBias !== 0 && speed > 1.5) {
+                        this.vx += -this.vy * 0.008 * spinBias;
+                        this.vy += this.vx * 0.008 * spinBias;
+                    }
+
+                    // 3D кеңістікте шынайы домалауы (Tumbling in 3D)
+                    this.rotX += this.vy * 0.075;
+                    this.rotZ -= this.vx * 0.075;
+                    this.rotY += this.vAngle;
+                    this.vAngle *= 0.95;
+
+                    // Секіру биіктігі (Соғылғанда сәл ауаға көтеріледі)
+                    const bounceH = Math.min(2.4, speed * 0.14) * Math.abs(Math.sin(performance.now() * 0.025));
+                    this.targetY = 1.45 + bounceH;
+
+                    if (speed > 3.2 && Math.random() < 0.4) {
+                        spawn3DDust(to3DX(this.x), to3DZ(this.y));
+                    }
+
+                    // Шекарадан серпілу
+                    const pad = this.radius + 15;
+                    if (this.x < pad) { this.x = pad; this.vx *= -0.6; playBoneClack(0.3); }
+                    if (this.x > LOGICAL_SIZE - pad) { this.x = LOGICAL_SIZE - pad; this.vx *= -0.6; playBoneClack(0.3); }
+                    if (this.y < pad) { this.y = pad; this.vy *= -0.6; playBoneClack(0.3); }
+                    if (this.y > LOGICAL_SIZE - pad) { this.y = LOGICAL_SIZE - pad; this.vy *= -0.6; playBoneClack(0.3); }
+
+                    // Шеңберден шыққанын тексеру
+                    if (!this.isSaka && !this.knockedOut) {
+                        const distFromCenter = Math.hypot(this.x - CENTER_X, this.y - CENTER_Y);
+                        if (distFromCenter > CIRCLE_RADIUS + this.radius * 0.4) {
+                            this.knockedOut = true;
+                            knockedOutThisTurn++;
+                            const pts = this.isKhan ? 200 : 100;
+                            addPointsToActivePlayer(pts, 1);
+                            playFanfare('out');
+                            createFloatingBadge(
+                                this.x,
+                                this.y,
+                                this.isKhan ? `ХАН ШЫҚТЫ! +${pts}` : `ШЕҢБЕРДЕН ШЫҚТЫ! +${pts}`,
+                                '#34d399'
+                            );
+                            updateUI();
+                        }
+                    }
+                } else if (speed > 0) {
+                    this.vx = 0;
+                    this.vy = 0;
+                    this.vAngle = 0;
+                    this.determineRestingState();
+                } else {
+                    // Тоқтаған кезде таңдалған күйдің (Алшы, Тәйке, Бүк, Шік, Омпы) 3D позасына жатық орнығуы
+                    this.rotX += (this.targetRotX - this.rotX) * 0.22;
+                    this.rotZ += (this.targetRotZ - this.rotZ) * 0.22;
+                    this.targetY = this.state.yOffset * (this.isSaka ? 1.25 : 1.0);
+                }
+
+                this.sync3DTransform();
+            }
+
+            determineRestingState() {
+                if (!this.wasHit && !this.isSaka) return;
+
+                const r = Math.random();
+                const ompyChance = (spinBias !== 0 ? 0.12 : 0.08) + (this.maxImpact > 14 ? 0.04 : 0);
+                const alshyChance = this.isSaka ? (spinBias !== 0 ? 0.34 : 0.24) : 0.22;
+
+                if (r < ompyChance) {
+                    this.state = STATES.OMPY;
+                    if (!this.isSaka) {
+                        targetOmpyThisTurn = true;
+                        addPointsToActivePlayer(STATES.OMPY.bonus, 0);
+                        playFanfare('ompy');
+                        createFloatingBadge(this.x, this.y, `👑 АСЫҚ ОМПЫ ТҮСТІ! +${STATES.OMPY.bonus}`, '#facc15');
+                    }
+                } else if (r < ompyChance + alshyChance) {
+                    this.state = STATES.ALSHY;
+                } else if (r < ompyChance + alshyChance + 0.24) {
+                    this.state = STATES.TAIKE;
+                } else if (r < ompyChance + alshyChance + 0.58) {
+                    this.state = STATES.BUK;
+                } else {
+                    this.state = STATES.SHIK;
+                }
+
+                // Айналу бұрышын ең жақын толық айналымға нормалау және нақты 3D күй бұрышын қою
+                this.rotX = this.rotX % (Math.PI * 2);
+                this.rotZ = this.rotZ % (Math.PI * 2);
+                this.targetRotX = this.state.rotX;
+                this.targetRotZ = this.state.rotZ;
+                this.maxImpact = 0;
+            }
+
+            sync3DTransform() {
+                const x3d = to3DX(this.x);
+                const z3d = to3DZ(this.y);
+                const y3d = this.targetY || (this.state.yOffset * (this.isSaka ? 1.25 : 1.0));
+
+                this.mesh.position.set(x3d, y3d, z3d);
+                this.boneRoot.rotation.set(this.rotX, this.rotY, this.rotZ);
+
+                // Halo Ring (Шеңберден шыққанда жасыл, Омпыда алтын)
+                this.haloRing.position.y = -y3d + 0.06;
+                const isResting = Math.hypot(this.vx, this.vy) === 0;
+                if (this.state === STATES.OMPY && (this.wasHit || this.isSaka) && isResting) {
+                    this.haloRing.material.color.setHex(0xfacc15);
+                    this.haloRing.material.opacity = 0.85;
+                } else if (this.knockedOut) {
+                    this.haloRing.material.color.setHex(0x34d399);
+                    this.haloRing.material.opacity = 0.7;
+                } else {
+                    this.haloRing.material.opacity = 0.0;
+                }
+
+                // 3D позицияны 2D экранға проекциялап күй жазуын көрсету
+                if (isResting && (this.wasHit || this.isSaka)) {
+                    const proj = new THREE.Vector3(x3d, y3d + 2.4, z3d);
+                    proj.project(camera);
+                    if (proj.z < 1) {
+                        const sx = (proj.x * 0.5 + 0.5) * 100;
+                        const sy = (-proj.y * 0.5 + 0.5) * 100;
+                        this.labelEl.style.left = `${sx}%`;
+                        this.labelEl.style.top = `${sy}%`;
+                        this.labelEl.style.color = this.state.color;
+                        this.labelEl.style.borderColor = this.state.color;
+                        this.labelEl.textContent = this.state.name;
+                        this.labelEl.style.opacity = '1';
+                    } else {
+                        this.labelEl.style.opacity = '0';
+                    }
+                } else {
+                    this.labelEl.style.opacity = '0';
+                }
+            }
+        }
+
+        function spawn3DDust(x3d, z3d, colorHex = 0xe3be88) {
+            const geo = new THREE.SphereGeometry(0.28 + Math.random() * 0.25, 6, 6);
+            const mat = new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.85 });
+            const p = new THREE.Mesh(geo, mat);
+            p.position.set(x3d + (Math.random() - 0.5), 0.3, z3d + (Math.random() - 0.5));
+            scene.add(p);
+            dustParticles3D.push({
+                mesh: p,
+                vx: (Math.random() - 0.5) * 0.25,
+                vy: 0.08 + Math.random() * 0.14,
+                vz: (Math.random() - 0.5) * 0.25
+            });
+        }
+
+        // ==========================================
+        // СОҚТЫҒЫСУ ФИЗИКАСЫ
+        // ==========================================
+        function handleCollisions() {
+            const all = [saka, ...asyks];
+            for (let i = 0; i < all.length; i++) {
+                for (let j = i + 1; j < all.length; j++) {
+                    const a = all[i];
+                    const b = all[j];
+                    const dx = b.x - a.x;
+                    const dy = b.y - a.y;
+                    const dist = Math.hypot(dx, dy);
+                    const minDist = a.radius + b.radius;
+
+                    if (dist < minDist && dist > 0) {
+                        const overlap = minDist - dist;
+                        const nx = dx / dist;
+                        const ny = dy / dist;
+
+                        const totalMass = a.mass + b.mass;
+                        a.x -= nx * overlap * (b.mass / totalMass);
+                        a.y -= ny * overlap * (b.mass / totalMass);
+                        b.x += nx * overlap * (a.mass / totalMass);
+                        b.y += ny * overlap * (a.mass / totalMass);
+
+                        const kx = a.vx - b.vx;
+                        const ky = a.vy - b.vy;
+                        const p = 2 * (nx * kx + ny * ky) / totalMass;
+
+                        if (nx * kx + ny * ky > 0) {
+                            const restitution = 0.88;
+                            a.vx -= p * b.mass * nx * restitution;
+                            a.vy -= p * b.mass * ny * restitution;
+                            b.vx += p * a.mass * nx * restitution;
+                            b.vy += p * a.mass * ny * restitution;
+
+                            a.vAngle += (Math.random() - 0.5) * 0.35 + spinBias * 0.12;
+                            b.vAngle += (Math.random() - 0.5) * 0.45;
+
+                            a.wasHit = true;
+                            b.wasHit = true;
+
+                            const impactForce = Math.hypot(kx, ky) / 14;
+                            playBoneClack(impactForce);
+
+                            for (let k = 0; k < 4; k++) {
+                                spawn3DDust(to3DX((a.x + b.x) / 2), to3DZ((a.y + b.y) / 2), 0xfef08a);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3D Көздеу траекториясын жаңарту
+        function update3DAimingGuide() {
+            if (!isAiming || roundActive || !saka) {
+                trajectoryDots.forEach(d => d.visible = false);
+                return;
+            }
+
+            const dx = saka.x - dragCurrent.x;
+            const dy = saka.y - dragCurrent.y;
+            const pullDist = Math.min(Math.hypot(dx, dy), 140);
+            if (pullDist < 10) {
+                trajectoryDots.forEach(d => d.visible = false);
+                return;
+            }
+
+            const angle = Math.atan2(dy, dx);
+            const powerRatio = pullDist / 140;
+
+            // Сақаны көздеген бағытқа бұру
+            saka.rotY = -angle + Math.PI / 2;
+
+            let simX = saka.x;
+            let simY = saka.y;
+            let simVx = Math.cos(angle) * powerRatio * 24;
+            let simVy = Math.sin(angle) * powerRatio * 24;
+
+            for (let i = 0; i < trajectoryDots.length; i++) {
+                simX += simVx * 1.4;
+                simY += simVy * 1.4;
+                simVx *= 0.95;
+                simVy *= 0.95;
+                if (spinBias !== 0) {
+                    simVx += -simVy * 0.01 * spinBias;
+                    simVy += simVx * 0.01 * spinBias;
+                }
+                const dot = trajectoryDots[i];
+                dot.visible = true;
+                dot.position.set(to3DX(simX), 0.6, to3DZ(simY));
+                dot.material.color.setHex(powerRatio > 0.75 ? 0xef4444 : 0xfbbf24);
+            }
+        }
+
+        // Камера ракурсын өзгерту батырмасы
+        function cycleCameraView() {
+            camMode = (camMode + 1) % 3;
+            const btn = document.getElementById('camViewBtn');
+            if (camMode === 0) {
+                btn.textContent = '🎥 Ракурс: Ойын';
+                camAzimuth = 0;
+                camElevation = 0.68;
+                camDistance = 48;
+                camTarget.set(0, 0, 7);
+            } else if (camMode === 1) {
+                btn.textContent = '🔍 Ракурс: 3D Сақа';
+                camAzimuth = 0.55;
+                camElevation = 0.35;
+                camDistance = 14;
+                if (saka) {
+                    camTarget.set(to3DX(saka.x), 1.6, to3DZ(saka.y));
+                }
+            } else {
+                btn.textContent = '🦅 Ракурс: Жоғарыдан';
+                camAzimuth = 0;
+                camElevation = 1.32;
+                camDistance = 54;
+                camTarget.set(0, 0, 3);
+            }
+        }
+
+        function updateCameraPosition() {
+            if (camMode === 1 && saka && !roundActive) {
+                camTarget.set(to3DX(saka.x), 1.6, to3DZ(saka.y));
+                // Сақаны жақыннан көргенде оның барлық сұлбасы көрінуі үшін баяу айналдыру
+                if (!isOrbiting) camAzimuth += 0.008;
+            } else if (roundActive) {
+                camTarget.lerp(new THREE.Vector3(0, 0, 3), 0.06);
+            }
+
+            const cx = camTarget.x + camDistance * Math.sin(camAzimuth) * Math.cos(camElevation);
+            const cy = camTarget.y + camDistance * Math.sin(camElevation);
+            const cz = camTarget.z + camDistance * Math.cos(camAzimuth) * Math.cos(camElevation);
+
+            camera.position.lerp(new THREE.Vector3(cx, cy, cz), 0.15);
+            camera.lookAt(camTarget);
+        }
+
+        // ==========================================
+        // ҚАЛҚЫМАЛЫ ХАБАРЛАМАЛАР (Floating Badges)
+        // ==========================================
+        function createFloatingBadge(logicalX, logicalY, text, color = '#fbbf24') {
+            const el = document.createElement('div');
+            el.className = 'floating-badge absolute font-black text-xs sm:text-sm px-2.5 py-1 rounded-full shadow-lg border whitespace-nowrap z-10';
+
+            const proj = new THREE.Vector3(to3DX(logicalX), 2.5, to3DZ(logicalY));
+            proj.project(camera);
+            const sx = (proj.x * 0.5 + 0.5) * 100;
+            const sy = (-proj.y * 0.5 + 0.5) * 100;
+
+            el.style.left = `${sx}%`;
+            el.style.top = `${sy}%`;
+            el.style.transform = 'translate(-50%, -50%)';
+            el.style.backgroundColor = 'rgba(24, 13, 6, 0.92)';
+            el.style.color = color;
+            el.style.borderColor = color;
+            el.textContent = text;
+
+            floatingContainer.appendChild(el);
+            setTimeout(() => el.remove(), 1600);
+        }
+
+        // ==========================================
+        // ОЙЫН ЛОГИКАСЫ ЖӘНЕ РАУНД БАСҚАРУ
+        // ==========================================
+        function setGameMode(mode) {
+            gameMode = mode;
+            const btn1P = document.getElementById('mode1PBtn');
+            const btn2P = document.getElementById('mode2PBtn');
+            const stats1P = document.getElementById('stats1P');
+            const stats2P = document.getElementById('stats2P');
+
+            if (mode === '1P') {
+                btn1P.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold bg-amber-500 text-amber-950 transition';
+                btn2P.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold text-amber-200 hover:bg-amber-800/50 transition';
+                stats1P.classList.remove('hidden');
+                stats2P.classList.add('hidden');
+            } else {
+                btn2P.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold bg-amber-500 text-amber-950 transition';
+                btn1P.className = 'px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold text-amber-200 hover:bg-amber-800/50 transition';
+                stats1P.classList.add('hidden');
+                stats2P.classList.remove('hidden');
+            }
+            score = 0;
+            loadLevel(currentLevelIdx);
+        }
+
+        function addPointsToActivePlayer(pts, knockedCount = 0) {
+            if (gameMode === '1P') {
+                score += pts;
+            } else {
+                players[currentPlayer].score += pts;
+                players[currentPlayer].asyks += knockedCount;
+            }
+        }
+
+        function showSpecialAlert(text) {
+            const banner = document.getElementById('specialAlertBanner');
+            banner.textContent = text;
+            banner.classList.remove('hidden');
+            setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 2600);
+        }
+
+        function applySakaAppearance() {
+            if (!saka) return;
+            if (gameMode === '2P') {
+                saka.setColors(players[currentPlayer].color, players[currentPlayer].leadColor);
+            } else {
+                saka.setColors(0xdc2626, 0xfbbf24);
+            }
+        }
+
+        function loadLevel(idx) {
+            currentLevelIdx = idx;
+            const lvl = LEVELS[idx];
+            shotsLeft = lvl.shots;
+            roundActive = false;
+            isAiming = false;
+            currentPlayer = 1;
+            players[1].score = 0;
+            players[1].asyks = 0;
+            players[2].score = 0;
+            players[2].asyks = 0;
+
+            document.getElementById('levelNameDisplay').textContent = lvl.name;
+            document.getElementById('levelSelect').value = idx;
+            document.getElementById('roundOverlay').classList.add('hidden');
+            document.getElementById('hintBanner').style.opacity = '1';
+
+            // Ескі 3D модельдерді тазалау
+            if (saka) saka.destroy();
+            asyks.forEach(a => a.destroy());
+
+            saka = new Asyk3D(SAKA_START_X, SAKA_START_Y, true);
+            applySakaAppearance();
+            asyks = lvl.targets.map(t => new Asyk3D(t.x, t.y, false, t));
+            updateUI();
+        }
+
+        function updateUI() {
+            const knockedCount = asyks.filter(a => a.knockedOut).length;
+            const remaining = asyks.length - knockedCount;
+
+            // 1P UI
+            document.getElementById('scoreVal').textContent = score;
+            document.getElementById('knockedVal').textContent = `${knockedCount} / ${asyks.length}`;
+            document.getElementById('shotsVal').textContent = shotsLeft;
+
+            // 2P UI
+            document.getElementById('p1Score').textContent = players[1].score;
+            document.getElementById('p1Asyks').textContent = players[1].asyks;
+            document.getElementById('p2Score').textContent = players[2].score;
+            document.getElementById('p2Asyks').textContent = players[2].asyks;
+            document.getElementById('remaining2PVal').textContent = `${remaining} асық`;
+
+            const p1Card = document.getElementById('p1Card');
+            const p2Card = document.getElementById('p2Card');
+            const p1Badge = document.getElementById('p1TurnBadge');
+            const p2Badge = document.getElementById('p2TurnBadge');
+
+            if (currentPlayer === 1) {
+                p1Card.className = 'bg-amber-900/70 px-3 py-1.5 rounded-xl border-2 border-amber-400 flex flex-col transition-all shadow-lg';
+                p2Card.className = 'bg-black/40 px-3 py-1.5 rounded-xl border-2 border-transparent opacity-65 flex flex-col transition-all';
+                p1Badge.classList.remove('hidden');
+                p2Badge.classList.add('hidden');
+            } else {
+                p2Card.className = 'bg-sky-950/80 px-3 py-1.5 rounded-xl border-2 border-cyan-400 flex flex-col transition-all shadow-lg';
+                p1Card.className = 'bg-black/40 px-3 py-1.5 rounded-xl border-2 border-transparent opacity-65 flex flex-col transition-all';
+                p2Badge.classList.remove('hidden');
+                p1Badge.classList.add('hidden');
+            }
+        }
+
+        // Барлық асықтар тоқтағаннан кейін қорытынды шығару
+        function onTurnSettled() {
+            roundActive = false;
+
+            // Сақаның түскен күйін бағалау
+            const sState = saka.state;
+            addPointsToActivePlayer(sState.bonus, 0);
+
+            const isSakaOmpy = sState === STATES.OMPY;
+            const isSakaAlshy = sState === STATES.ALSHY;
+            const keepTurnBonus = isSakaOmpy || isSakaAlshy || targetOmpyThisTurn || knockedOutThisTurn > 0;
+
+            if (isSakaOmpy) {
+                if (gameMode === '1P') shotsLeft += 1;
+                playFanfare('ompy');
+                showSpecialAlert('👑 ОМПЫ ТҮСТІ! +150 ҰПАЙ & ҚОСЫМША АТУ!');
+                createFloatingBadge(saka.x, saka.y, `👑 САҚА ОМПЫ! +${sState.bonus}`, '#facc15');
+            } else if (targetOmpyThisTurn) {
+                if (gameMode === '1P') shotsLeft += 1;
+                showSpecialAlert('👑 АСЫҚ ОМПЫ ТҮСТІ! +150 ҰПАЙ & ҚОСЫМША АТУ!');
+                createFloatingBadge(saka.x, saka.y, `САҚА: ${sState.name} (+${sState.bonus})`, sState.color);
+            } else if (isSakaAlshy) {
+                if (gameMode === '1P') shotsLeft += 1;
+                playFanfare('alshy');
+                createFloatingBadge(saka.x, saka.y, `🌟 САҚА АЛШЫ! +${sState.bonus} (+1 АТУ)`, '#fbbf24');
+            } else {
+                createFloatingBadge(saka.x, saka.y, `САҚА: ${sState.name} (+${sState.bonus})`, sState.color);
+            }
+
+            updateUI();
+
+            // Көгенде қалған асықтар бар ма?
+            const remainingTargets = asyks.filter(a => !a.knockedOut).length;
+
+            setTimeout(() => {
+                if (remainingTargets === 0) {
+                    showEndOverlay(true);
+                } else if (gameMode === '1P' && shotsLeft <= 0) {
+                    showEndOverlay(false);
+                } else {
+                    // 2 Ойыншы режимінде кезек ауысу логикасы
+                    if (gameMode === '2P') {
+                        if (keepTurnBonus) {
+                            createFloatingBadge(CENTER_X, SAKA_START_Y - 45, `🔥 ${players[currentPlayer].name} КЕЗЕГІН САҚТАДЫ!`, '#fbbf24');
+                        } else {
+                            currentPlayer = currentPlayer === 1 ? 2 : 1;
+                            createFloatingBadge(CENTER_X, SAKA_START_Y - 45, `⚔️ КЕЗЕК: ${players[currentPlayer].name}`, '#38bdf8');
+                        }
+                    }
+
+                    // Сақаны қайтадан ату сызығына қою
+                    saka.x = SAKA_START_X;
+                    saka.y = SAKA_START_Y;
+                    saka.rotX = 0;
+                    saka.rotY = 0;
+                    saka.rotZ = 0;
+                    saka.targetRotX = 0;
+                    saka.targetRotZ = 0;
+                    saka.state = STATES.ALSHY;
+                    saka.wasHit = false;
+                    applySakaAppearance();
+                    saka.sync3DTransform();
+                    updateUI();
+                }
+            }, 1050);
+        }
+
+        function showEndOverlay(won) {
+            const overlay = document.getElementById('roundOverlay');
+            const icon = document.getElementById('overlayIcon');
+            const title = document.getElementById('overlayTitle');
+            const desc = document.getElementById('overlayDesc');
+            const nextBtn = document.getElementById('nextLevelBtn');
+
+            overlay.classList.remove('hidden');
+
+            if (gameMode === '2P') {
+                playFanfare('ompy');
+                icon.textContent = '👑';
+                const p1 = players[1];
+                const p2 = players[2];
+                if (p1.score > p2.score) {
+                    title.textContent = '🔴 БАТЫР 1 ЖЕҢДІ!';
+                } else if (p2.score > p1.score) {
+                    title.textContent = '🔵 БАТЫР 2 ЖЕҢДІ!';
+                } else {
+                    title.textContent = '🤝 ДОСТЫҚ ЖЕҢДІ (ТЕҢ)!';
+                }
+                desc.textContent = `Батыр 1: ${p1.score} ұпай (${p1.asyks} асық) | Батыр 2: ${p2.score} ұпай (${p2.asyks} асық).`;
+                nextBtn.classList.remove('hidden');
+                return;
+            }
+
+            if (won) {
+                playFanfare('alshy');
+                icon.textContent = '🏆';
+                title.textContent = 'Мергенсіз! Жеңіс!';
+                desc.textContent = `Сіз көгендегі барлық асықты шеңберден шығардыңыз! Жалпы ұпайыңыз: ${score}.`;
+                nextBtn.classList.remove('hidden');
+            } else {
+                icon.textContent = '🎯';
+                title.textContent = 'Мүмкіндік аяқталды';
+                const left = asyks.filter(a => !a.knockedOut).length;
+                desc.textContent = `Шеңбер ішінде әлі ${left} асық қалды. Сақаны дәлірек көздеп қайта байқап көріңіз!`;
+                nextBtn.classList.add('hidden');
+            }
+        }
+
+        function restartLevel() {
+            loadLevel(currentLevelIdx);
+        }
+
+        function nextLevel() {
+            const next = (currentLevelIdx + 1) % LEVELS.length;
+            loadLevel(next);
+        }
+
+        function changeLevelSelect(val) {
+            loadLevel(parseInt(val, 10));
+        }
+
+        function setSpin(val) {
+            spinBias = val;
+            document.getElementById('spinLeft').className = val === -1
+                ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500 text-amber-950 transition'
+                : 'px-2.5 py-1 rounded-lg text-xs font-bold text-amber-200 hover:bg-amber-800/50 transition';
+            document.getElementById('spinCenter').className = val === 0
+                ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500 text-amber-950 transition'
+                : 'px-2.5 py-1 rounded-lg text-xs font-bold text-amber-200 hover:bg-amber-800/50 transition';
+            document.getElementById('spinRight').className = val === 1
+                ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500 text-amber-950 transition'
+                : 'px-2.5 py-1 rounded-lg text-xs font-bold text-amber-200 hover:bg-amber-800/50 transition';
+        }
+
+        function toggleRulesModal(show) {
+            const modal = document.getElementById('rulesModal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function togglePublishModal(show) {
+            const modal = document.getElementById('publishModal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        // Ойынды дайын index.html файлы ретінде жүктеп алу функциясы
+        function downloadGameHTML() {
+            const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            createFloatingBadge(CENTER_X, CENTER_Y, '📥 index.html ЖҮКТЕЛДІ!', '#34d399');
+        }
+
+        // Ұпайды және сілтемені достармен бөлісу
+        function shareGameResult() {
+            const shareText = `🎯 Мен «Асық Ату 3D» ұлттық ойынында ${score} ұпай жинадым! Сен де Сақаңды сайлап, Алшы мен Омпы түсіріп көр!`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Асық Ату 3D — Ұлттық Ойыны',
+                    text: shareText,
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = shareText + ' ' + window.location.href;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                createFloatingBadge(CENTER_X, CENTER_Y, '📋 МӘТІН КӨШІРІЛДІ!', '#fbbf24');
+            }
+        }
+
+        // ==========================================
+        // 3D RAYCASTER ЖӘНЕ КАМЕРАНЫ БҰРУ БАСҚАРУЫ
+        // ==========================================
+        const raycaster = new THREE.Raycaster();
+        const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+        function getLogicalCoordsFromEvent(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const mouse = new THREE.Vector2(
+                ((clientX - rect.left) / rect.width) * 2 - 1,
+                -((clientY - rect.top) / rect.height) * 2 + 1
+            );
+
+            raycaster.setFromCamera(mouse, camera);
+            const hitPoint = new THREE.Vector3();
+            raycaster.ray.intersectPlane(groundPlane, hitPoint);
+
+            if (hitPoint) {
+                return {
+                    x: hitPoint.x / SCALE_3D + CENTER_X,
+                    y: hitPoint.z / SCALE_3D + CENTER_Y,
+                    screenX: clientX,
+                    screenY: clientY
+                };
+            }
+            return { x: SAKA_START_X, y: SAKA_START_Y, screenX: clientX, screenY: clientY };
+        }
+
+        function onPointerDown(e) {
+            if (roundActive || (gameMode === '1P' && shotsLeft <= 0)) return;
+            const pos = getLogicalCoordsFromEvent(e);
+            const distToSaka = Math.hypot(pos.x - saka.x, pos.y - saka.y);
+
+            if (distToSaka < 80) {
+                // Сақаны басса — атуға көздеу басталады (егер жақын ракурста болса, ойын ракурсына ауысады)
+                if (camMode === 1) cycleCameraView();
+                isAiming = true;
+                dragCurrent = pos;
+                document.getElementById('hintBanner').style.opacity = '0';
+                initAudio();
+            } else {
+                // Алаңның басқа жерін басып сипаса — 3D камераны еркін бұруға болады
+                isOrbiting = true;
+                orbitStart = { x: pos.screenX, y: pos.screenY };
+            }
+        }
+
+        function onPointerMove(e) {
+            if (!isAiming && !isOrbiting) return;
+            e.preventDefault();
+            const pos = getLogicalCoordsFromEvent(e);
+
+            if (isAiming) {
+                dragCurrent = pos;
+            } else if (isOrbiting) {
+                const dx = pos.screenX - orbitStart.x;
+                const dy = pos.screenY - orbitStart.y;
+                orbitStart = { x: pos.screenX, y: pos.screenY };
+
+                camAzimuth -= dx * 0.007;
+                camElevation = Math.max(0.22, Math.min(1.42, camElevation + dy * 0.006));
+            }
+        }
+
+        function onPointerUp() {
+            isOrbiting = false;
+            if (!isAiming) return;
+            isAiming = false;
+            trajectoryDots.forEach(d => d.visible = false);
+
+            const dx = saka.x - dragCurrent.x;
+            const dy = saka.y - dragCurrent.y;
+            const pullDist = Math.min(Math.hypot(dx, dy), 140);
+
+            if (pullDist > 14) {
+                const angle = Math.atan2(dy, dx);
+                const power = (pullDist / 140) * 24;
+
+                saka.vx = Math.cos(angle) * power;
+                saka.vy = Math.sin(angle) * power;
+                saka.vAngle = (Math.random() - 0.5) * 0.3 + spinBias * 0.25;
+                saka.wasHit = true;
+
+                knockedOutThisTurn = 0;
+                targetOmpyThisTurn = false;
+                if (gameMode === '1P') shotsLeft--;
+                roundActive = true;
+                playShootSound();
+                updateUI();
+            }
+        }
+
+        canvas.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('mousemove', onPointerMove);
+        window.addEventListener('mouseup', onPointerUp);
+
+        canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+        window.addEventListener('touchmove', onPointerMove, { passive: false });
+        window.addEventListener('touchend', onPointerUp);
+
+        // ==========================================
+        // НЕГІЗГІ 3D АНИМАЦИЯЛЫҚ ЦИКЛ
+        // ==========================================
+        function resizeCanvas() {
+            const w = wrapper.clientWidth;
+            const h = wrapper.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function gameLoop() {
+            updateCameraPosition();
+            update3DAimingGuide();
+
+            // 3D Құм шаңының бөлшектері
+            for (let i = dustParticles3D.length - 1; i >= 0; i--) {
+                const p = dustParticles3D[i];
+                p.mesh.position.x += p.vx;
+                p.mesh.position.y += p.vy;
+                p.mesh.position.z += p.vz;
+                p.mesh.material.opacity -= 0.04;
+                if (p.mesh.material.opacity <= 0) {
+                    scene.remove(p.mesh);
+                    dustParticles3D.splice(i, 1);
+                }
+            }
+
+            // Физика және соқтығысулар
+            if (roundActive) {
+                saka.update();
+                asyks.forEach(a => a.update());
+                handleCollisions();
+
+                const anyMoving = [saka, ...asyks].some(a => Math.hypot(a.vx, a.vy) > 0);
+                if (!anyMoving) {
+                    onTurnSettled();
+                }
+            } else {
+                if (saka) saka.sync3DTransform();
+                asyks.forEach(a => a.sync3DTransform());
+            }
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.onload = function () {
+            resizeCanvas();
+            loadLevel(0);
+            gameLoop();
+        };
+    </script>
+
+</body></html>
